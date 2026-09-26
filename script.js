@@ -1,150 +1,512 @@
-// ============================
-// KONFIGURASI FIREBASE (Nanti diisi)
-// ============================
-const firebaseConfig = {
-  apiKey: "AIzaSyC9M8KK2P8lqTxGc1X4ltjQZUeAoikNe8o",
-  authDomain: "fir-login-4c963.firebaseapp.com",
-  projectId: "fir-login-4c963",
-  storageBucket: "fir-login-4c963.firebasestorage.app",
-  messagingSenderId: "577920418582",
-  appId: "1:577920418582:android:a43883daf1215ecb524637"
-};
-
-// Inisialisasi Firebase (Hanya jika config sudah diisi)
-let auth;
-if (firebaseConfig.apiKey !== "ISI_DENGAN_API_KEY_ANDA") {
-  firebase.initializeApp(firebaseConfig);
-  auth = firebase.auth();
+/* ============ RESET & VARIABEL ============ */
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --secondary: #8b5cf6;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-soft: #64748b;
+  --border: #eef0f4;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 32px rgba(99, 102, 241, 0.15);
+  --radius: 16px;
+  --radius-lg: 24px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-// ============================
-// DATA SEMENTARA (Untuk Halaman Utama)
-// ============================
-const categories = [
-  { id: 1, name: 'Elektronik', icon: '📱' },
-  { id: 2, name: 'Fashion',    icon: '👕' },
-  { id: 3, name: 'Kendaraan',  icon: '🏍️' },
-  { id: 4, name: 'Rumah',      icon: '🏠' },
-  { id: 5, name: 'Hobi',       icon: '🎮' },
-  { id: 6, name: 'Buku',       icon: '📚' },
-];
-
-const products = [
-  { id: 1, name: 'iPhone 12 Bekas Mulus', price: 5500000, loc: 'Jakarta', icon: '📱' },
-  { id: 2, name: 'Sepatu Nike Air Original', price: 450000, loc: 'Bandung', icon: '👟' },
-  { id: 3, name: 'Motor Honda Vario 2020', price: 15000000, loc: 'Surabaya', icon: '🏍️' },
-  { id: 4, name: 'PS4 Slim Fullset 2 Stik', price: 3200000, loc: 'Yogyakarta', icon: '🎮' },
-  { id: 5, name: 'Kulkas 2 Pintu Sharp', price: 1800000, loc: 'Medan', icon: '🧊' },
-  { id: 6, name: 'Buku Clean Code Original', price: 85000, loc: 'Semarang', icon: '📚' },
-];
-
-// ============================
-// FUNGSI RENDER (Halaman Utama)
-// ============================
-function renderCategories() {
-  const container = document.getElementById('categoryList');
-  if (!container) return;
-  container.innerHTML = '';
-  categories.forEach(cat => {
-    const card = document.createElement('div');
-    card.className = 'category-card';
-    card.innerHTML = `<span class="icon">${cat.icon}</span><span class="name">${cat.name}</span>`;
-    container.appendChild(card);
-  });
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
-function renderProducts(list = products) {
-  const container = document.getElementById('productList');
-  if (!container) return;
-  container.innerHTML = '';
-  list.forEach((prod, i) => {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.style.animation = `fadeInUp 0.5s ${i * 0.05}s var(--ease) backwards`;
-    card.innerHTML = `
-      <div class="product-img">${prod.icon}</div>
-      <div class="product-info">
-        <div class="product-name">${prod.name}</div>
-        <div class="product-price">Rp ${prod.price.toLocaleString('id-ID')}</div>
-        <div class="product-loc">📍 ${prod.loc}</div>
-      </div>`;
-    container.appendChild(card);
-  });
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 15px;
+  overflow-x: hidden;
 }
 
-// ============================
-// LOGIKA UTAMA SAAT HALAMAN DIMUAT
-// ============================
-document.addEventListener('DOMContentLoaded', () => {
-  
-  // --- 1. CEK HALAMAN UTAMA (index.html) ---
-  if (document.getElementById('categoryList')) {
-    renderCategories();
-    renderProducts();
-    
-    document.getElementById('btnSearch')?.addEventListener('click', () => {
-      const kw = document.getElementById('searchInput').value.trim();
-      if (kw) renderProducts(products.filter(p => p.name.toLowerCase().includes(kw.toLowerCase())));
-    });
-    
-    document.getElementById('btnLogin')?.addEventListener('click', () => window.location.href = 'login.html');
-    document.getElementById('btnRegister')?.addEventListener('click', () => window.location.href = 'register.html');
-  }
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
-  // --- 2. CEK HALAMAN LOGIN (login.html) ---
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const message = document.getElementById('message');
-      
-      if (!auth) { message.textContent = "Firebase belum dikonfigurasi!"; message.style.color = "red"; return; }
-      
-      message.textContent = "Sedang masuk...";
-      message.style.color = "blue";
-      
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => { window.location.href = 'dashboard.html'; })
-        .catch(err => { message.textContent = err.message; message.style.color = "red"; });
-    });
-  }
+/* ============ HEADER ============ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(238, 240, 244, 0.8);
+}
 
-  // --- 3. CEK HALAMAN DAFTAR (register.html) ---
-  const registerForm = document.getElementById('registerForm');
-  if (registerForm) {
-    registerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const message = document.getElementById('message');
-      
-      if (!auth) { message.textContent = "Firebase belum dikonfigurasi!"; message.style.color = "red"; return; }
-      
-      message.textContent = "Membuat akun...";
-      message.style.color = "blue";
-      
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => { window.location.href = 'dashboard.html'; })
-        .catch(err => { message.textContent = err.message; message.style.color = "red"; });
-    });
-  }
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
 
-  // --- 4. CEK HALAMAN DASHBOARD (dashboard.html) ---
-  if (document.getElementById('userName')) {
-    if (!auth) return;
-    
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        document.getElementById('userName').textContent = user.email;
-      } else {
-        window.location.href = 'login.html';
-      }
-    });
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
 
-    document.getElementById('btnLogout')?.addEventListener('click', () => {
-      auth.signOut().then(() => { window.location.href = 'login.html'; });
-    });
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.logo-text {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.3px;
+}
+
+.logo-text em {
+  font-style: normal;
+  color: var(--primary);
+}
+
+.nav { display: none; gap: 4px; }
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-soft);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  transition: all 0.25s var(--ease);
+}
+
+.nav-link:hover { color: var(--text); background: #f1f5f9; }
+.nav-link.active { color: var(--primary); background: #eef2ff; }
+
+.auth-buttons { display: flex; gap: 8px; align-items: center; }
+
+/* ============ BUTTONS ============ */
+.btn {
+  padding: 9px 18px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.25s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.45);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover { background: #f8fafc; border-color: #dbe1ea; }
+
+.btn-full { width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; }
+
+/* ============ HERO ============ */
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 64px 0 72px;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18), transparent 65%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; z-index: 1; }
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border: 1px solid #e0e7ff;
+}
+
+.hero h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+  color: var(--text-soft);
+  max-width: 520px;
+  margin: 0 auto 32px;
+  font-size: 15px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 560px;
+  margin: 0 auto 36px;
+  padding: 6px 6px 6px 18px;
+  background: var(--surface);
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s var(--ease);
+}
+
+.search-bar:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12), var(--shadow-md);
+}
+
+.search-icon { font-size: 16px; opacity: 0.5; }
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text);
+  padding: 12px 0;
+}
+
+.search-bar input::placeholder { color: #94a3b8; }
+
+.btn-search { padding: 11px 22px; border-radius: 999px; }
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.stat { display: flex; flex-direction: column; }
+.stat strong { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+.stat span { font-size: 12px; color: var(--text-soft); }
+
+.divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+/* ============ SECTION ============ */
+.section { margin: 56px auto; }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.link-more {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.link-more:hover { color: var(--primary-dark); }
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.category-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px 12px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.3s var(--ease);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  border-color: transparent;
+  box-shadow: var(--shadow-lg);
+}
+
+.category-card .icon {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 8px;
+  transition: transform 0.3s var(--ease);
+}
+
+.category-card:hover .icon { transform: scale(1.15); }
+
+.category-card .name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: all 0.35s var(--ease);
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+.product-img {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(135deg, #f8fafc, #eef2f7);
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  transition: transform 0.4s var(--ease);
+}
+
+.product-card:hover .product-img { transform: scale(1.06); }
+
+.product-info { padding: 14px; }
+
+.product-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-price {
+  color: var(--primary-dark);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+}
+
+.product-loc {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footer {
+  margin-top: 80px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.footer p { font-size: 13px; color: var(--text-soft); }
+
+/* ============ AUTH PAGES (LOGIN/REGISTER/DASHBOARD) ============ */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  padding: 20px;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-card {
+  background: var(--surface);
+  padding: 40px 28px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.auth-logo {
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.auth-card h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.auth-sub {
+  color: var(--text-soft);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.25s var(--ease);
+  background: #f8fafc;
+}
+
+.input-group input:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.auth-footer {
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.auth-footer a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover { text-decoration: underline; }
+
+.auth-message {
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ============ ANIMASI & RESPONSIVE ============ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.7s var(--ease) forwards;
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 768px) {
+  .nav { display: flex; }
+  .hero { padding: 88px 0 96px; }
+  .hero h1 { font-size: 44px; }
+  .hero-sub { font-size: 16px; }
+  .section-title { font-size: 22px; }
+  .footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
   }
-});
+                            }
