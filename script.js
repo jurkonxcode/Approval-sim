@@ -20,39 +20,29 @@ const products = [
 ];
 
 // ============================
-// RENDER KATEGORI
+// RENDER KATEGORI & PRODUK
 // ============================
 function renderCategories() {
   const container = document.getElementById('categoryList');
+  if (!container) return;
   container.innerHTML = '';
   categories.forEach(cat => {
     const card = document.createElement('div');
     card.className = 'category-card';
-    card.innerHTML = `
-      <span class="icon">${cat.icon}</span>
-      <span class="name">${cat.name}</span>
-    `;
+    card.innerHTML = `<span class="icon">${cat.icon}</span><span class="name">${cat.name}</span>`;
     card.addEventListener('click', () => filterByCategory(cat.name));
     container.appendChild(card);
   });
 }
 
-// ============================
-// RENDER PRODUK
-// ============================
 function renderProducts(list = products) {
   const container = document.getElementById('productList');
+  if (!container) return;
   container.innerHTML = '';
-
   if (list.length === 0) {
-    container.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#94a3b8;">
-        <p style="font-size:40px;margin-bottom:8px;">🔎</p>
-        <p>Produk tidak ditemukan.</p>
-      </div>`;
+    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#94a3b8;"><p style="font-size:40px;margin-bottom:8px;">🔎</p><p>Produk tidak ditemukan.</p></div>`;
     return;
   }
-
   list.forEach((prod, i) => {
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -63,58 +53,39 @@ function renderProducts(list = products) {
         <div class="product-name">${prod.name}</div>
         <div class="product-price">Rp ${prod.price.toLocaleString('id-ID')}</div>
         <div class="product-loc">📍 ${prod.loc}</div>
-      </div>
-    `;
+      </div>`;
     card.addEventListener('click', () => openProduct(prod.id));
     container.appendChild(card);
   });
 }
 
 // ============================
-// PENCARIAN & FILTER
+// FUNGSI BANTUAN
 // ============================
 function searchProducts(keyword) {
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(keyword.toLowerCase())
-  );
+  const filtered = products.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()));
   renderProducts(filtered);
 }
 
-function filterByCategory(name) {
-  alert(`Menampilkan kategori: ${name}\n(Fitur filter akan diimplementasikan)`);
-}
-
-function openProduct(id) {
-  alert(`Membuka produk ID: ${id}\n(Halaman detail akan dibuat)`);
-}
+function filterByCategory(name) { alert(`Menampilkan kategori: ${name}`); }
+function openProduct(id) { alert(`Membuka produk ID: ${id}`); }
 
 // ============================
 // EVENT LISTENER
 // ============================
-document.getElementById('btnSearch').addEventListener('click', () => {
-  const kw = document.getElementById('searchInput').value.trim();
-  if (kw) searchProducts(kw);
-});
+document.addEventListener('DOMContentLoaded', () => {
+  // Halaman Utama
+  const btnSearch = document.getElementById('btnSearch');
+  const searchInput = document.getElementById('searchInput');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnRegister = document.getElementById('btnRegister');
 
-document.getElementById('searchInput').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    const kw = e.target.value.trim();
-    if (kw) searchProducts(kw);
-  }
-});
+  if (btnSearch) btnSearch.addEventListener('click', () => { const kw = searchInput.value.trim(); if (kw) searchProducts(kw); });
+  if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { const kw = e.target.value.trim(); if (kw) searchProducts(kw); } });
+  if (btnLogin) btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; });
+  if (btnRegister) btnRegister.addEventListener('click', () => { window.location.href = 'register.html'; });
 
-document.getElementById('btnLogin').addEventListener('click', () => {
-  alert('Menuju halaman login...');
-  // nanti: window.location.href = 'login.html';
+  // Inisialisasi Halaman Utama
+  if (document.getElementById('categoryList')) renderCategories();
+  if (document.getElementById('productList')) renderProducts();
 });
-
-document.getElementById('btnRegister').addEventListener('click', () => {
-  alert('Menuju halaman daftar...');
-  // nanti: window.location.href = 'register.html';
-});
-
-// ============================
-// INIT
-// ============================
-renderCategories();
-renderProducts();
