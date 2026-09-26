@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — ApprovalSim</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body class="auth-page">
+  <div class="auth-container fade-in" style="text-align: center;">
+    <div class="auth-card">
+      <a href="index.html" class="logo auth-logo">
+        <span class="logo-mark">A</span>
+        <span class="logo-text">Approval<em>Sim</em></span>
+      </a>
+      <h1>Selamat Datang! 👋</h1>
+      <p class="auth-sub">Anda berhasil masuk sebagai:</p>
+      <h3 id="userName" style="color: var(--primary); margin-bottom: 24px;">Memuat...</h3>
+      <button id="btnLogout" class="btn btn-ghost btn-full">Keluar (Logout)</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
