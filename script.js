@@ -1,5 +1,24 @@
 // ============================
-// DATA SEMENTARA
+// KONFIGURASI FIREBASE (Nanti diisi)
+// ============================
+const firebaseConfig = {
+  apiKey: "AIzaSyC9M8KK2P8lqTxGc1X4ltjQZUeAoikNe8o",
+  authDomain: "fir-login-4c963.firebaseapp.com",
+  projectId: "fir-login-4c963",
+  storageBucket: "fir-login-4c963.firebasestorage.app",
+  messagingSenderId: "577920418582",
+  appId: "1:577920418582:android:a43883daf1215ecb524637"
+};
+
+// Inisialisasi Firebase (Hanya jika config sudah diisi)
+let auth;
+if (firebaseConfig.apiKey !== "ISI_DENGAN_API_KEY_ANDA") {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+}
+
+// ============================
+// DATA SEMENTARA (Untuk Halaman Utama)
 // ============================
 const categories = [
   { id: 1, name: 'Elektronik', icon: '📱' },
@@ -20,7 +39,7 @@ const products = [
 ];
 
 // ============================
-// RENDER KATEGORI & PRODUK
+// FUNGSI RENDER (Halaman Utama)
 // ============================
 function renderCategories() {
   const container = document.getElementById('categoryList');
@@ -30,7 +49,6 @@ function renderCategories() {
     const card = document.createElement('div');
     card.className = 'category-card';
     card.innerHTML = `<span class="icon">${cat.icon}</span><span class="name">${cat.name}</span>`;
-    card.addEventListener('click', () => filterByCategory(cat.name));
     container.appendChild(card);
   });
 }
@@ -39,10 +57,6 @@ function renderProducts(list = products) {
   const container = document.getElementById('productList');
   if (!container) return;
   container.innerHTML = '';
-  if (list.length === 0) {
-    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#94a3b8;"><p style="font-size:40px;margin-bottom:8px;">🔎</p><p>Produk tidak ditemukan.</p></div>`;
-    return;
-  }
   list.forEach((prod, i) => {
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -54,38 +68,83 @@ function renderProducts(list = products) {
         <div class="product-price">Rp ${prod.price.toLocaleString('id-ID')}</div>
         <div class="product-loc">📍 ${prod.loc}</div>
       </div>`;
-    card.addEventListener('click', () => openProduct(prod.id));
     container.appendChild(card);
   });
 }
 
 // ============================
-// FUNGSI BANTUAN
-// ============================
-function searchProducts(keyword) {
-  const filtered = products.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()));
-  renderProducts(filtered);
-}
-
-function filterByCategory(name) { alert(`Menampilkan kategori: ${name}`); }
-function openProduct(id) { alert(`Membuka produk ID: ${id}`); }
-
-// ============================
-// EVENT LISTENER
+// LOGIKA UTAMA SAAT HALAMAN DIMUAT
 // ============================
 document.addEventListener('DOMContentLoaded', () => {
-  // Halaman Utama
-  const btnSearch = document.getElementById('btnSearch');
-  const searchInput = document.getElementById('searchInput');
-  const btnLogin = document.getElementById('btnLogin');
-  const btnRegister = document.getElementById('btnRegister');
+  
+  // --- 1. CEK HALAMAN UTAMA (index.html) ---
+  if (document.getElementById('categoryList')) {
+    renderCategories();
+    renderProducts();
+    
+    document.getElementById('btnSearch')?.addEventListener('click', () => {
+      const kw = document.getElementById('searchInput').value.trim();
+      if (kw) renderProducts(products.filter(p => p.name.toLowerCase().includes(kw.toLowerCase())));
+    });
+    
+    document.getElementById('btnLogin')?.addEventListener('click', () => window.location.href = 'login.html');
+    document.getElementById('btnRegister')?.addEventListener('click', () => window.location.href = 'register.html');
+  }
 
-  if (btnSearch) btnSearch.addEventListener('click', () => { const kw = searchInput.value.trim(); if (kw) searchProducts(kw); });
-  if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { const kw = e.target.value.trim(); if (kw) searchProducts(kw); } });
-  if (btnLogin) btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; });
-  if (btnRegister) btnRegister.addEventListener('click', () => { window.location.href = 'register.html'; });
+  // --- 2. CEK HALAMAN LOGIN (login.html) ---
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('message');
+      
+      if (!auth) { message.textContent = "Firebase belum dikonfigurasi!"; message.style.color = "red"; return; }
+      
+      message.textContent = "Sedang masuk...";
+      message.style.color = "blue";
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => { window.location.href = 'dashboard.html'; })
+        .catch(err => { message.textContent = err.message; message.style.color = "red"; });
+    });
+  }
 
-  // Inisialisasi Halaman Utama
-  if (document.getElementById('categoryList')) renderCategories();
-  if (document.getElementById('productList')) renderProducts();
+  // --- 3. CEK HALAMAN DAFTAR (register.html) ---
+  const registerForm = document.getElementById('registerForm');
+  if (registerForm) {
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('message');
+      
+      if (!auth) { message.textContent = "Firebase belum dikonfigurasi!"; message.style.color = "red"; return; }
+      
+      message.textContent = "Membuat akun...";
+      message.style.color = "blue";
+      
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => { window.location.href = 'dashboard.html'; })
+        .catch(err => { message.textContent = err.message; message.style.color = "red"; });
+    });
+  }
+
+  // --- 4. CEK HALAMAN DASHBOARD (dashboard.html) ---
+  if (document.getElementById('userName')) {
+    if (!auth) return;
+    
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('userName').textContent = user.email;
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    document.getElementById('btnLogout')?.addEventListener('click', () => {
+      auth.signOut().then(() => { window.location.href = 'login.html'; });
+    });
+  }
 });
