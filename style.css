@@ -142,6 +142,8 @@ body {
 
 .btn-ghost:hover { background: #f8fafc; border-color: #dbe1ea; }
 
+.btn-full { width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; }
+
 /* ============ HERO ============ */
 .hero {
   position: relative;
@@ -392,7 +394,7 @@ body {
 
 .footer p { font-size: 13px; color: var(--text-soft); }
 
-/* ============ AUTH PAGES (LOGIN/REGISTER) ============ */
+/* ============ AUTH PAGES (LOGIN/REGISTER/DASHBOARD) ============ */
 .auth-page {
   display: flex;
   align-items: center;
@@ -465,13 +467,6 @@ body {
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-.btn-full {
-  width: 100%;
-  padding: 14px;
-  font-size: 15px;
-  margin-top: 8px;
-}
-
 .auth-footer {
   margin-top: 24px;
   font-size: 14px;
@@ -484,9 +479,7 @@ body {
   font-weight: 600;
 }
 
-.auth-footer a:hover {
-  text-decoration: underline;
-}
+.auth-footer a:hover { text-decoration: underline; }
 
 .auth-message {
   margin-top: 16px;
@@ -516,4 +509,4 @@ body {
     justify-content: space-between;
     text-align: left;
   }
-  }
+}
